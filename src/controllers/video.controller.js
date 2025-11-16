@@ -95,7 +95,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Object Id is not valid");
     }
 
-    const videoFile = Video.findById(videoId);
+    const videoFile =  await Video.findById(videoId);
 
     if(!videoFile){
         throw new ApiError(404, "Video file not found");
@@ -107,17 +107,19 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     const deletedVideo = await  Video.findByIdAndDelete(videoFile?._id);
 
-    if(!deleteVideo){
+    if(!deletedVideo){
         throw new ApiError(404, "Failed to delete video");
     }
 
+    console.log("VIDEO FILE:", videoFile);
+
     await deleteOnCloudinary(videoFile.thumbnail.public_id);
-    await deleteOnCloudinary(videoFile.video.public_id, "video");
+    await deleteOnCloudinary(videoFile.videoFile.public_id, "video");
 
     res
     .status(200)
     .json(
-        new ApiResponse(201, {}, "Video deleted successfully")
+        new ApiResponse(200, {}, "Video deleted successfully")
     )
 });
 
